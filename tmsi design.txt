@@ -1,0 +1,147 @@
+
+
+Timing:
+När data in på serieporten, behandla inom 0.5s och uppdatera models + skicka sirap.
+När användare trycker tangent, kvittera i gui direkt, skicka kommando inom 1s.
+Uppdatera gui varje 1s, oavsett om ngt nytt hänt (klockorna tickar fram iaf).
+Om en enda tråd: låt klockan vara i GUI:t
+GUI uppdaterar sig varje halvsekund
+	läser radiostatus + si.punches
+	kollar om user input, skickar kommando till TM
+while (true)
+{
+  tm.processAnyNewData()
+  gui.processUserInput()
+  tm.thinkAndAct()
+  si.thinkAndAct()
+  gui.render() #inkl flagga warnings
+}
+
+si: 
+	kontroller lista #behövs för att minnas vilken radioid, om man ska läsa från backupminnet.
+tm
+	radiolista inkl status
+
+si ärver från serialdatareceiver
+setup:
+	gui: skapa tm singleton
+	com: öppna serieport
+	si registrera sig som serialdatareceiver hos tm
+
+tm.processAnyNewData()
+	while tm.getpacket
+	parse packet, logga
+	update radio status #also flag warnings per radio
+	if serial data packet: si.received(data, radioid)
+
+	radioid, data = si.to_send()
+	build(data,radioid)
+	com.send(bytes)
+
+tm.getpacket
+	buf=com.read()
+	läs första byte som ju är length, returnera så mycket, spara resten.
+
+com.read
+	Garantera icke-fragmentering, men riskera konkatenering. 
+	Samla med timestamps. 
+	Skicka bara sådant som är tillräckligt gammalt och med timeout-lucka emellan. 
+	Konkatenera.
+
+tm.sendCommand(command,radioid)
+	build command to radioid
+	com.send(bytes)
+
+si.received(data)
+	update punches #also flag warning per control
+	send sirap
+
+gui.update()
+	för varje radio, rendera radiostatus
+	rendera senaste punches
+
+gui.processUserInput()
+	if tm command: tm.sendCommand()
+	if si command: si.buildCommand(), tm.sendData(data,radioid)
+
+Moduler och interface:
+Kanske proxy design pattern, där varje radio har ett proxy-objekt?
+
+Tests: 
+Statusmeddelanden som ima-paket, emulera com. Kolla listan av radio status, att den är rätt.
+stämplingar som seriedatapaket, emulera com. Kolla listan av punches, att den är rätt.
+Simulera tappat paket (hål i sekvens). Varning genereras.
+Simulera tappad stämpling (hål i sekvens). Larm genereras. 
+Simulera skicka läs-backup-kommando.
+Simulera hög temperatur, lågt batteri, lång latency. Varning genereras.
+
+
+
+Recovering from Message Loss
+Usually a timer is kept while awaiting for a message. If the message is received, timer is stopped. If the timer expires, message loss is registered. In such a case, a retry logic is implemented by restarting the timer and awaiting for the message again. If the number of retries reaches a threshold, the activity is aborted and appropriate recovery action is initiated.
+
+
+gui i huvudtråden
+serial i egen tråd
+
+
+create main frame
+	portname box
+	connect knob.valuechanged - on knob change
+	knob
+	set actions enable state
+		start_action.setEnabled
+		stop_actipon.setEnabled
+
+on_start
+	data q init
+	error q init	
+	com monitor thread (data q, error q, portname)
+		start it
+	kolla efter error, visa popup
+	timer=qtimer
+	connect timer -> on timer
+	start timer = knob value
+	
+on timer
+	read serial data
+	update monitor
+
+on knob change
+	timer set interval to updated freq
+
+update monitor
+	kolla om nytt data i livefeed
+	läs nytt data, lägg till i datalistan 
+	uppdatera guit - replot
+
+read serial data
+	läs från data q, lägg i livefeed
+
+
+
+
+while (True):
+    if (ser.inWaiting()>0): #if incoming bytes are waiting to be read from the serial input buffer
+        data_str = ser.read(ser.inWaiting())
+
+
+
+
+
+(parsa, notifiera lyssnare)
+		(statisk dispatcherklass? event.type -> mottagare)
+		radio.in.ima
+		radio.in.serialdata
+		radio.out.serialdata
+		gui.out.warning
+		gui.out.alarm
+		gui.out.status
+		gui.in.get_backup
+		radio.out.get_backup
+
+ett tinymesh-system
+	hooks till ett övervakningsgui
+	seriepaket in och ut. radio id är kopplingen.
+ett sportident-system
+	hooks till samma gui
