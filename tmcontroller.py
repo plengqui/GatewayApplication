@@ -2,7 +2,7 @@ from datetime  import datetime
 from tmparser import *
 from time import sleep
 
-def processSerialData(data): #list of integers
+def process_serial_data(data): #list of integers
         buf=bytes(data)
         print("Serial data:",buf)
         #TODO: send via dirq to Sportident parser
@@ -27,16 +27,16 @@ assert_directory_exists(qdirToSerialPort)
 # queue with received packets
 dirq = QueueSimple(qdirFromSerialPort)
 
+radioStatus = {}  # keep a dictionary of dictionaries
 
-radioStatus={} #keep a dictionary of dictionaries
-while True:
+def process_new_data():
     for name in dirq:
         if not dirq.lock(name):
             continue
-        print("# reading element %s" % name)
+        #print("# reading element %s" % name, end="")
         buf = dirq.get(name)
         d=ReceivedPacket.parse(buf)
-
+        print(d)
         radioStatus[d.OriginId]={
             "OriginRssi": d.OriginRssi,
             "OriginNetworkLevel": d.OriginNetworkLevel,
@@ -45,6 +45,7 @@ while True:
             "LatencyCounter": d.LatencyCounter,
             "ReceivedTime": d.ReceivedTime
             }
+        #todo: it seems like i am creating a new dictionary, instead of just updating the values that are new
 #        print(d.OriginId,d.MessageCounter, d.PacketType, d.ReceivedTime, d.OriginRssi, sep="\t",end="")
         if(d.PacketType=="ReceiveEvent" and d.PacketContents.MessageDetail in ["DigitalInputChangeDetected","Analogue0InputTrig","Analogue1InputTrig","RfJammingDetected","DeviceReset",
                               "StatusIma", "ChannelBusySimilarId", "ChannelIsFree", "ChannelIsJammed", "OtherTmActiveOnChannel","StatusNid", "StatusNextReceiver"]):
@@ -58,12 +59,6 @@ while True:
                     "FwVersion": d.PacketContents.Footer.FwVersion
                     })
         if(d.PacketType=="ReceiveSerial"):
-            processSerialData(d.PacketContents.SerialData)
+            process_serial_data(d.PacketContents.SerialData)
         dirq.remove(name)
-
-    print("Radio","Signal","Since last contact",sep="\t")
-    for radioid,status in radioStatus.items():
-        print(radioid,
-              "{0:.0f}%".format((255-status["OriginRssi"])/2.55),
-              (datetime.now() - status["ReceivedTime"]).seconds,sep="\t")
-    sleep(1)
+    return radioStatus

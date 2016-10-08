@@ -5,7 +5,7 @@ import serial
 from time import sleep
 import serial.tools.list_ports
 import argparse
-from dirq.QueueSimple import QueueSimple
+from dirq.QueueSimple import QueueSimple #http://dirq.readthedocs.io/
 import os
 qdirFromSerialPort = "C:\\temp\\tmsi\\port_in"
 qdirFromSerialPortBkp = "C:\\temp\\tmsi\\port_in_backup"
