@@ -2,7 +2,7 @@ from tmparser import *
 from time import sleep
 import serial
 
-serial_port = serial.serial_for_url( url="COM1",baudrate=19600,
+serial_port = serial.serial_for_url( url="COM2",baudrate=9600,
                                           stopbits=1,parity=serial.PARITY_NONE,timeout=1)
 with open('live_test_data.txt') as fp:
     for line in fp:

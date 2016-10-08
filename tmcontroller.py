@@ -1,25 +1,42 @@
 from datetime  import datetime
 from tmparser import *
-from comwrapper import *
 from time import sleep
-import serial.tools.list_ports
 
 def processSerialData(data): #list of integers
         buf=bytes(data)
-        print(buf)
-        sleep(2)
+        print("Serial data:",buf)
+        #TODO: send via dirq to Sportident parser
+        #TBD: how to include radio id?
 
-ports=serial.tools.list_ports.comports()
-for port in ports: print(port)
-p=ComWrapper(port='COM4', port_baud=19200)
-buf=''
+#TODO: pick up serial data from sportident parser to send to the radio with given id
+#TBD: how to send to a given SRR sportident station??
+
+from dirq.QueueSimple import QueueSimple
+import os
+qdirFromSerialPort = "C:\\temp\\tmsi\\port_in"
+qdirFromSerialPortBkp = "C:\\temp\\tmsi\\port_in_backup"
+qdirToSerialPort = "C:\\temp\\tmsi\\port_out"
+def assert_directory_exists(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+assert_directory_exists(qdirFromSerialPort)
+assert_directory_exists(qdirFromSerialPortBkp)
+assert_directory_exists(qdirToSerialPort)
+
+
+# queue with received packets
+dirq = QueueSimple(qdirFromSerialPort)
+
+
 radioStatus={} #keep a dictionary of dictionaries
-while buf != b'\x05exit':
-    buf=p.getPacket()
-    if(buf != None):
-        #print(buf)
+while True:
+    for name in dirq:
+        if not dirq.lock(name):
+            continue
+        print("# reading element %s" % name)
+        buf = dirq.get(name)
         d=ReceivedPacket.parse(buf)
-        #print(d)
+
         radioStatus[d.OriginId]={
             "OriginRssi": d.OriginRssi,
             "OriginNetworkLevel": d.OriginNetworkLevel,
@@ -42,13 +59,11 @@ while buf != b'\x05exit':
                     })
         if(d.PacketType=="ReceiveSerial"):
             processSerialData(d.PacketContents.SerialData)
-    else:
-        print('.',end='')
-        sleep(0.8)
+        dirq.remove(name)
 
     print("Radio","Signal","Since last contact",sep="\t")
     for radioid,status in radioStatus.items():
         print(radioid,
               "{0:.0f}%".format((255-status["OriginRssi"])/2.55),
-              datetime.now() - status["ReceivedTime"],sep="\t")
-
+              (datetime.now() - status["ReceivedTime"]).seconds,sep="\t")
+    sleep(1)

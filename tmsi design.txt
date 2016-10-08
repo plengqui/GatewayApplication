@@ -1,6 +1,20 @@
 
+TBD: BEHÖVER VERKLIGEN EN KÖ MELLAN TM OCH SI? Annars kan dom ju dela gui.
 
-Timing:
+
+Done:
+small com port listener comportwrapper
+interface via dirq from port to tmcontroller
+Todo: interface to port
+Todo: Sportident module
+Todo: mygui class that displays a dictionary of dictionaries with radio status
+TBD: where whould the event loop be? helst in the gui.
+
+
+
+
+
+Timing requirements:
 När data in på serieporten, behandla inom 0.5s och uppdatera models + skicka sirap.
 När användare trycker tangent, kvittera i gui direkt, skicka kommando inom 1s.
 Uppdatera gui varje 1s, oavsett om ngt nytt hänt (klockorna tickar fram iaf).
