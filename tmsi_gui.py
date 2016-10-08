@@ -46,8 +46,10 @@ def update():
             tree.insert("",0,iid=radioId,text=radioId, values=valuesFormatted)
     #for id in radioRows:
     #    tree.item(id,text="Radio", values=("60%","8"))
-    text.insert(END, "Tick.....\n")
-    text.see(END)
+    s=tm.get_serial_data()
+    if s:
+        text.insert(END, "\n" + str(s))
+        text.see(END)
     root.after(500,update)
 
 
@@ -62,7 +64,7 @@ text.pack(side=LEFT, fill=Y)
 textScroller.config(command=text.yview)
 text.config(yscrollcommand=textScroller.set)
 
-text.insert(INSERT, "Hello.....\n")
+text.insert(INSERT, "Sportident punches:\n")
 
 
 

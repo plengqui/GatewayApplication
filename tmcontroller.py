@@ -2,6 +2,7 @@ from datetime  import datetime
 from tmparser import *
 from time import sleep
 from myqueuemanager import MyQueue
+from collections import deque
 
 class TinymeshController(object):
 
@@ -13,10 +14,14 @@ class TinymeshController(object):
         return TinymeshController.__singleton_instance
 
     def process_serial_data(self,data): #list of integers
-            buf=bytes(data)
-            print("Serial data:",buf)
-            #TODO: send via dirq to Sportident parser
-            #TBD: how to include radio id?
+        buf=bytes(data)
+        print("Serial data:",buf)
+        self.serialData.append(buf)
+    def get_serial_data(self):
+        if self.serialData:
+            return self.serialData.popleft()
+        else:
+            return None
 
     #TODO: pick up serial data from sportident parser to send to the radio with given id
     #TBD: how to send to a given SRR sportident station??
@@ -24,7 +29,7 @@ class TinymeshController(object):
     def __init__(self):
         self.dirq = MyQueue(subject=MyQueue.SUBJECT_NETWORKPACKETS_IN)
         self.radioStatus = {}  # keep a dictionary of dictionaries
-
+        self.serialData = deque([])
 
 
     def process_new_data(self):
