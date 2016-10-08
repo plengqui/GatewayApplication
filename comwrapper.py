@@ -5,19 +5,7 @@ import serial
 from time import sleep
 import serial.tools.list_ports
 import argparse
-from dirq.QueueSimple import QueueSimple #http://dirq.readthedocs.io/
-import os
-qdirFromSerialPort = "C:\\temp\\tmsi\\port_in"
-qdirFromSerialPortBkp = "C:\\temp\\tmsi\\port_in_backup"
-qdirToSerialPort = "C:\\temp\\tmsi\\port_out"
-def assert_directory_exists(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-assert_directory_exists(qdirFromSerialPort)
-assert_directory_exists(qdirFromSerialPortBkp)
-assert_directory_exists(qdirToSerialPort)
-
-
+from myqueuemanager import MyQueue
 
     
 class ComWrapper():
@@ -39,16 +27,11 @@ class ComWrapper():
         self.packet_length=0 #0 if we are waiting for a new packet. >0 if we are waiting for a full packet to come into the buffer
 
         #queue to put received packets to
-        self.dirq = QueueSimple(qdirFromSerialPort)
-        self.dirq2 = QueueSimple(qdirFromSerialPortBkp)
-        
+        self.dirq = MyQueue(subject=MyQueue.SUBJECT_NETWORKPACKETS_IN)
+
 
     def exportPacket(self,buf):
         name = self.dirq.add(buf)
-        print("# added element %s" % (name))
-        name = self.dirq2.add(buf)
-        print("# added backup element %s" % (name))
-        print(buf)
 
     def getPacket(self):
         #read what is in buffer, check that it is feasible
@@ -76,10 +59,9 @@ class ComWrapper():
          if self.serial_port:
              self.serial_port.close()
 
-print("ports (start):")
+print("Serial ports available:")
 ports=serial.tools.list_ports.comports()
 for port in ports: print(port)
-print("ports (end)")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("port", help="The serial port to connect to.")
@@ -88,13 +70,13 @@ args = parser.parse_args()
 
 p=ComWrapper(port=args.port, port_baud=args.baudrate)
     
-buf=''
-while buf != b'\x05exit':
+while True:
     buf=p.getPacket()
     if(buf != None):
         p.exportPacket(buf)
+        print("received",buf,flush=True)
     else:
-        print('.',end='')
+        print('.',end='',flush=True)
         sleep(0.8)
         #TODO: look for packets on the serial-packets-to-send dirq
 

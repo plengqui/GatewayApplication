@@ -4,6 +4,8 @@ from tkinter.ttk import *
 import tmcontroller
 from datetime import datetime
 
+from tmcontroller import TinymeshController
+
 root = Tk()
 root.wm_title("Tinymesh network manager")
 numberOfRadios = 3
@@ -26,14 +28,13 @@ tree.heading("temp", text="Module temperature")
 #     id=tree.insert("", 0, text="Radio "+str(i), values=("50%", "7"))
 #     radioRows.append(id)
 
-
+tm=TinymeshController()
 def update():
     # read new radio status from tmcontroller
-    radioStates=tmcontroller.process_new_data()
+    radioStates=tm.process_new_data()
     #TODO: HOW TO ALSO PASS SERIAL SPORTIDENT DATA IF THAT HAS BEEN RECEIVED
     #newPunches=sicontroller.process_new_data()
-    # radioStates={"Radio1":{"Rssi":324, "Time":7},
-    #              "Radio2":{"Rssi":123, "Time":7}}
+    # radioStates={"Radio1":{"Rssi":324, "Time":7},"Radio2":{"Rssi":123, "Time":7}}
     for radioId, status in radioStates.items():
         valuesFormatted = ["{0:.0f}%".format((255 - status["OriginRssi"]) / 2.55),
                            (datetime.now() - status["ReceivedTime"]).seconds,
