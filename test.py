@@ -1,7 +1,41 @@
 import unittest
 from tmparser import *
-from comwrapper import *
+from comwrapper import ComWrapper
 import time
+import siparser
+
+class TestSiParser(unittest.TestCase):
+    def test_SimplePunchParse1(self):
+        buf = bytes([255, 2, 211, 13, 0, 44, 0, 3, 171, 90, 37, 102, 247, 13, 0, 1, 192, 251, 107, 3])
+        d=siparser.SiPacket.parse(buf)
+        # Wakeup = None
+        # Stx = b'\x02'
+        # Command = b'\xd3'
+        # Len = 13
+        # Cn = 44
+        # SiNr = 343866
+        # Td = 37
+        # ThTl = 2016-11-01 19:19:19  (current date)
+        # Tsubsec = 13
+        # Mem = 448
+        # Crc1 = 251
+        # Crc2 = 107
+        # Etx = b'\x03'
+        self.assertEqual(d.Len,13)
+        self.assertEqual(d.Cn, 44, "Wrong control number")
+        self.assertEqual(d.SiNr, 343866)
+        self.assertEqual((d.ThTl - datetime.now()).days, 0)
+        self.assertEqual(d.ThTl.hour,19)
+        self.assertEqual(d.ThTl.minute,19)
+        self.assertEqual(d.ThTl.second,19)
+        self.assertEqual(d.Mem, 448)
+
+    def test_SimplePunchParseNoLeadingFf(self):
+        buf = bytes([2, 211, 13, 0, 44, 0, 3, 171, 90, 37, 102, 247, 13, 0, 1, 192, 251, 107, 3])
+        d = siparser.SiPacket.parse(buf)
+        self.assertEqual(d.Len, 13)
+        self.assertEqual(d.Mem, 448)
+
 
 class TestComWrapper(unittest.TestCase):
     def test_SimpleLoopback(self):
@@ -47,6 +81,7 @@ class TestComWrapper(unittest.TestCase):
         for x in range(4):
             self.assertEqual(received[x],None)
         self.assertEqual(received[4],b'\x1Ffoobarfoobarfoobarfoobarfoobar')
+
 
 class TestTmParsing(unittest.TestCase):
     def test_ParseSingleIma(self):
@@ -251,7 +286,6 @@ class TestTmParsing(unittest.TestCase):
 ##        Data1 = 50
 ##        Data2 = 0
 ##    PacketType = SendCommand
-
 
 
 

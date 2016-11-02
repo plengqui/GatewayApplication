@@ -47,6 +47,7 @@ class ComWrapper():
             data = bytes([self.packet_length]) + self.serial_port.read(self.packet_length-1)
             self.packet_length=0
             return data
+
         #todo: add else clause with timeout check
         #start a timer when first part of packet is read
         #timeout should be very short, since TM packets should come in one piece from the gateway
@@ -59,24 +60,26 @@ class ComWrapper():
          if self.serial_port:
              self.serial_port.close()
 
-print("Serial ports available:")
-ports=serial.tools.list_ports.comports()
-for port in ports: print(port)
+if __name__ == '__main__':
+    # When this module is executed from the command-line:
+    print("Serial ports available:")
+    ports=serial.tools.list_ports.comports()
+    for port in ports: print(port)
 
-parser = argparse.ArgumentParser()
-parser.add_argument("port", help="The serial port to connect to.")
-parser.add_argument("baudrate", type=int, help="Baud rate to use.")
-args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("port", help="The serial port to connect to.")
+    parser.add_argument("baudrate", type=int, help="Baud rate to use.")
+    args = parser.parse_args()
 
-p=ComWrapper(port=args.port, port_baud=args.baudrate)
-    
-while True:
-    buf=p.getPacket()
-    if(buf != None):
-        p.exportPacket(buf)
-        print("received",buf,flush=True)
-    else:
-        print('.',end='',flush=True)
-        sleep(0.8)
-        #TODO: look for packets on the serial-packets-to-send dirq
+    p=ComWrapper(port=args.port, port_baud=args.baudrate)
+
+    while True:
+        buf=p.getPacket()
+        if(buf != None):
+            p.exportPacket(buf)
+            print(":",buf,flush=True)
+        else:
+            #print('.',end='',flush=True)
+            sleep(0.01)
+            #TODO: look for packets on the serial-packets-to-send dirq
 
