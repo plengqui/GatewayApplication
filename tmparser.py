@@ -1,10 +1,6 @@
 from construct import *
 from datetime  import datetime
 
-class PrintContext(Construct):
-     def _parse(self, stream, context):
-         print(context)
-
 class NodeIdAdapter(Adapter):
      def _encode(self, obj, context):
          return list(map(int, obj.split(":")))

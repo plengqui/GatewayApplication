@@ -6,6 +6,12 @@ from time import sleep
 import serial.tools.list_ports
 import argparse
 from myqueuemanager import MyQueue
+import logging
+
+logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s')
+logging.info('Started')
+logging.warning('%s before you %s', 'Look', 'leap!')
+logging.error('I am an error')
 
 class ComWrapper():
     #a serial port wrapper that returns one TM packet at a time.
@@ -68,10 +74,9 @@ if __name__ == '__main__':
     while True:
         buf=p.getPacket()
         if(buf != None):
+            logging.debug("New incoming packet received: %s",buf)
             p.exportPacket(buf)
-            print(":",buf,flush=True)
         else:
-            #print('.',end='',flush=True)
             sleep(0.01)
             #TODO: look for any outgoing packets to send (serial-packets-to-send dirq)
 

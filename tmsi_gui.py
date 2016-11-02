@@ -3,8 +3,16 @@ from tkinter import *
 from tkinter.ttk import *
 import tmcontroller
 from datetime import datetime
-
 from tmcontroller import TinymeshController
+
+import logging
+
+#logging.basicConfig(filename='myapp.log', level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s')
+logging.info('Started')
+logging.warning('%s before you %s', 'Look', 'leap!')
+logging.error('I am an error')
+
 
 root = Tk()
 root.wm_title("Tinymesh network manager")

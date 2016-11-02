@@ -5,7 +5,7 @@ from time import sleep
 from myqueuemanager import MyQueue
 from collections import deque
 from construct.core import ConstructError
-
+import logging
 
 class TinymeshController(object):
 
@@ -21,14 +21,13 @@ class TinymeshController(object):
         #Attempt to parse it as a sportident punch. If successful, send with SIRAP and print to gui.
         #Otherwise log as error.
         buf=bytes(data)
-        print("Serial data packet:")
         try:
             punch = siparser.SiPacket.parse(buf)
         except:
             # except (construct.core.ConstructError, construct.core.FieldError, construct.core.RangeError) as e:
-            print("Could not parse packet: ", data)
+            logging.error("Could not parse serial packet %s", data)
         else:
-            print(punch)
+            logging.debug("Serial data packet received: %s",punch)
             #TODO send with SIRAP to OLA
             self.serialData.append("Control=" + punch.Cn + " Card=" + punch.SiNr + " Time=" + ThTl.strftime("%H:%M:%S"))
 
@@ -55,15 +54,14 @@ class TinymeshController(object):
         for name in self.dirq:
             if not self.dirq.lock(name):
                 continue
-            #print("# reading element %s" % name, end="")
             buf = self.dirq.get(name)
             try:
                 d=ReceivedPacket.parse(buf)
             except:
             #except (construct.core.ConstructError, construct.core.FieldError, construct.core.RangeError) as e:
-                print("Could not parse packet: ",buf)
+                logging.error("Could not parse TM packet: %s",buf)
             else:
-                print(d)
+                logging.debug("Received TM packet: %s",d)
                 if d.OriginId in self.radioStatus:
                     self.radioStatus[d.OriginId].update({
                         "OriginRssi": d.OriginRssi,
@@ -82,9 +80,6 @@ class TinymeshController(object):
                         "LatencyCounter": d.LatencyCounter,
                         "ReceivedTime": d.ReceivedTime
                         }
-                #todo: it seems like i am creating a new dictionary, instead of just updating the values that are new
-                #tried fixing it by using update() instead. See how that works.
-                #print(d.OriginId,d.MessageCounter, d.PacketType, d.ReceivedTime, d.OriginRssi, sep="\t",end="")
                 if(d.PacketType=="ReceiveEvent" and d.PacketContents.MessageDetail in ["DigitalInputChangeDetected","Analogue0InputTrig","Analogue1InputTrig","RfJammingDetected","DeviceReset",
                                       "StatusIma", "ChannelBusySimilarId", "ChannelIsFree", "ChannelIsJammed", "OtherTmActiveOnChannel","StatusNid", "StatusNextReceiver"]):
                     self.radioStatus[d.OriginId].update({
