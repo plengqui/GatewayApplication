@@ -83,7 +83,7 @@ SportidentCard = SportidentCardAdapter(Byte[4])
 SiPacket=Struct(
     "Wakeup"/Optional(Const(b"\xFF")),
     "Stx"/Const(b"\x02"),
-    "Command"/Const(b"\xD3"),#todo switch to distinguish \xD3 and \x81
+    "Command"/Const(b"\xD3"),#maybe later: add switch to distinguish \xD3 and \x81 if we read backup
     "Len"/Int8ub, #Should be 13 bytes
     "Cn"/Int16ub,
     "SiNr"/SportidentCard,

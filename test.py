@@ -64,23 +64,19 @@ class TestComWrapper(unittest.TestCase):
         buf2=b'bar' #first part
         p=ComWrapper()
         p.putPacket(buf1)
-        p1=p.getPacket()
         p.putPacket(buf2)
-        p2=p.getPacket()
-        self.assertEqual(p1,None)
-        self.assertEqual(p2,buf1+buf2)
+        p=p.getPacket()
+        self.assertEqual(p,buf1+buf2)
 
     def test_PartialPacket2(self):
         length=31
         p=ComWrapper()
         p.putPacket(bytes([length]))
-        received=[]
+        received=b''
         for x in range(5):
             p.putPacket(b'foobar')
-            received.append(p.getPacket())
-        for x in range(4):
-            self.assertEqual(received[x],None)
-        self.assertEqual(received[4],b'\x1Ffoobarfoobarfoobarfoobarfoobar')
+            received+=p.getPacket()
+        self.assertEqual(received,b'\x1Ffoobarfoobarfoobarfoobarfoobar')
 
 
 class TestTmParsing(unittest.TestCase):
