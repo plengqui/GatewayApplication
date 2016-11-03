@@ -8,7 +8,7 @@ from tmcontroller import TinymeshController
 import logging
 
 #logging.basicConfig(filename='myapp.log', level=logging.INFO)
-logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s')
+logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s')
 logging.info('Started')
 logging.warning('%s before you %s', 'Look', 'leap!')
 logging.error('I am an error')

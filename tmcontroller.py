@@ -63,6 +63,9 @@ class TinymeshController(object):
             else:
                 logging.debug("Received TM packet: %s",d)
                 if d.OriginId in self.radioStatus:
+                    logging.debug("Previous radio status: %s", self.radioStatus[d.OriginId])
+                    if self.radioStatus[d.OriginId]['MessageCounter'] < d.MessageCounter-1:
+                        logging.error("Gap in message sequence for radio id %s. Last message was %d, current message is %d",d.OriginId, self.radioStatus[d.OriginId]['MessageCounter'], d.MessageCounter)
                     self.radioStatus[d.OriginId].update({
                         "OriginRssi": d.OriginRssi,
                         "OriginNetworkLevel": d.OriginNetworkLevel,
@@ -82,6 +85,7 @@ class TinymeshController(object):
                         }
                 if(d.PacketType=="ReceiveEvent" and d.PacketContents.MessageDetail in ["DigitalInputChangeDetected","Analogue0InputTrig","Analogue1InputTrig","RfJammingDetected","DeviceReset",
                                       "StatusIma", "ChannelBusySimilarId", "ChannelIsFree", "ChannelIsJammed", "OtherTmActiveOnChannel","StatusNid", "StatusNextReceiver"]):
+                    #If the packet is of a type that has a footer, save the status data from that.
                     self.radioStatus[d.OriginId].update({
                             "ModuleTemperature": d.PacketContents.Footer.ModuleTemperature,
                             "ModuleVoltage": d.PacketContents.Footer.ModuleVoltage,
