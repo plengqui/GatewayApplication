@@ -8,6 +8,11 @@ from construct.core import ConstructError
 import logging
 
 class TinymeshController(object):
+    """Check for new Tinymesh packets on the incoming queue SUBJECT_NETWORKPACKETS_IN, and parse them.
+    Keep connectivity and health status of each radio using the metadata in each packet.
+    The action is driven by external call to process_new_data() at regular intervals (typically seconds).
+    TODO: send any received Sportident punches to competition administration system using SIRAP.
+    """
 
     __singleton_instance = None
     def __new__(cls):
@@ -16,23 +21,35 @@ class TinymeshController(object):
         #TinymeshController.__singleton_instance.val = val
         return TinymeshController.__singleton_instance
 
-    def process_serial_data(self,data): #data = list of integers
-        #This gets called when we have received a TM packet of type serial.
-        #Attempt to parse it as a sportident punch. If successful, send with SIRAP and print to gui.
-        #Otherwise log as error.
+    def __init__(self):
+        self.dirq = MyQueue(subject=MyQueue.SUBJECT_NETWORKPACKETS_IN)
+        self.radioStatus = {}  # A dictionary of status data for each radio.
+        self.serialData = deque([])  # When a packet with serial data payload is received, this is the queue it is put on.
+        self.last_purge = datetime.now() # Used to clean up the queue at regular intervals.
+
+    def process_serial_data(self,data):
+        """Attempt to parse the data as a sportident punch. If successful, send with SIRAP and print to gui.
+        Otherwise log as error.
+        Append a human readable log message with the punch data to serialData.
+        Gets called when we have received a TM packet of type serial.
+        Arguments:
+            data -- list of integers representing bytes of the packet
+        """
         buf=bytes(data)
         try:
             punch = siparser.SiPacket.parse(buf)
         except:
             # except (construct.core.ConstructError, construct.core.FieldError, construct.core.RangeError) as e:
-            logging.error("Could not parse serial packet %s", data)
+            logging.error("Could not parse serial packet as Sportident punch: %s", data)
         else:
             logging.debug("Serial data packet received: %s",punch)
             #TODO send with SIRAP to OLA
             self.serialData.append("Control=" + punch.Cn + " Card=" + punch.SiNr + " Time=" + ThTl.strftime("%H:%M:%S"))
 
     def get_serial_data(self):
-        #this gets called by the gui to see if any new serial data has been received
+        """Check if any new Sportident punch has been received. If so, returns it as a human readable message.
+        This gets called by the gui.
+        """
         if self.serialData:
             return self.serialData.popleft()
         else:
@@ -41,16 +58,14 @@ class TinymeshController(object):
     #TODO: pick up serial data to send to the radio with given id (for example an acknowledge)
     #TBD: how to send to a given SRR sportident station??
 
-    def __init__(self):
-        self.dirq = MyQueue(subject=MyQueue.SUBJECT_NETWORKPACKETS_IN)
-        self.radioStatus = {}  # keep a dictionary of dictionaries
-        self.serialData = deque([])
-        self.last_purge = datetime.now()
 
 
     def process_new_data(self):
-        #Check incoming queue for any new packets. Parse them with TM format.
-        # Update the radio status with RSSI etc. If serial packet, process the serial data.
+        """Check incoming queue for any new packets. Parse them with TM format.
+        Update the radioStatus with signal strength and other health data.
+        If the packet is a serial payload packet, call process_serial_data() with the serial payload.
+        This method gets called regularly by the event loop of the GUI.
+        """
         for name in self.dirq:
             if not self.dirq.lock(name):
                 continue

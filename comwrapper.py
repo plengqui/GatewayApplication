@@ -1,3 +1,14 @@
+"""Listen to a designated COM port on the machine where it is executed
+and put any received data packets on a store-and-forward queue SUBJECT_NETWORKPACKETS_IN.
+This is to make sure no incoming packets are lost. Assumes that packet length is in the first byte of the packet.
+
+Usage::
+    >>> python comwrapper port=COM1 baudrate=9600
+Assumes no parity and one stop bit.
+"""
+
+
+
 import serial
 #from datetime  import datetime
 #from tmparser import *
@@ -14,9 +25,10 @@ logging.warning('%s before you %s', 'Look', 'leap!')
 logging.error('I am an error')
 
 class ComWrapper():
-    #a serial port wrapper that returns one TM packet at a time.
-    #Packet length is always in the first byte.
-    def __init__(   self, 
+    """A serial port wrapper that reads packets from a serial port (COM port) and writes them to
+    the store-and-forward queue SUBJECT_NETWORKPACKETS_IN.
+    Packet length is assumed in the first byte."""
+    def __init__(   self,
                     port="loop://",
                     port_baud=9600,
                     port_stopbits=serial.STOPBITS_ONE,
@@ -32,13 +44,15 @@ class ComWrapper():
         self.dirq = MyQueue(subject=MyQueue.SUBJECT_NETWORKPACKETS_IN)
 
     def exportPacket(self,buf):
+        """Put the packet on the queue."""
         name = self.dirq.add(buf)
 
     def getPacket(self):
-        #Read first byte in buffer. Its value should denote the packet length.
-        #Try to read so many bytes, with a timeout big enough so that the entire packet
-        #has time to arrive at the current baudrate, with a little margin.
-        #If no bytes are available to read, return None.
+        """ Read a new packet on the serial port and return it.
+        Assumes first denotes the packet length.
+        Try to read so packet length bytes, with a timeout big enough so that the entire packet
+        has time to arrive at the current baudrate, with a little margin.
+        """
         if(self.serial_port.inWaiting()):
             data = self.serial_port.read(1)
             #todo verify that len(data) == 1
@@ -52,6 +66,7 @@ class ComWrapper():
             return None
 
     def putPacket(self,buf):
+        """Write the packet to the serial port. Not used."""
         self.serial_port.write(buf)
 
     def __del__(self):

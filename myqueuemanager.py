@@ -1,7 +1,10 @@
-from dirq.QueueSimple import QueueSimple #http://dirq.readthedocs.io/
+from dirq.QueueSimple import QueueSimple
 import os
 
 class MyQueue(QueueSimple):
+    """Implement store-and-forward queues for received serial packets using QueueSimple(http://dirq.readthedocs.io/)
+    Each packet will be stored in a file in the directories defined below.
+    """
     qdirFromSerialPort = "C:\\temp\\tmsi\\port_in"
     qdirFromSerialPortBkp = "C:\\temp\\tmsi\\port_in_backup"
     qdirToSerialPort = "C:\\temp\\tmsi\\port_out"

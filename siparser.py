@@ -1,3 +1,9 @@
+"""Defines a parser for Sportident punch packets using Construct(http://construct.readthedocs.io/en/latest/) available on pypi(https://pypi.python.org/pypi/construct/).
+Some code stolen from sireader.py(https://github.com/guizmo51/sireader/blob/master/sireader.py)
+"""
+
+
+
 from construct import *
 from datetime  import datetime, timedelta
 
@@ -117,3 +123,7 @@ if __name__ == '__main__':
 
 #maybe if possible with srr: implement 0x81 readout backup memory  SI2-SI1-SI0-DATE1-DATE0-TH-TL-MS
 #PacketType = Enum(Byte, TransmitRecord=\xD3, BackupData=\x81)
+
+
+
+

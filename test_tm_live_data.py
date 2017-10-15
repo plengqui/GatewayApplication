@@ -1,3 +1,8 @@
+"""Generate authentic Tinymesh data packets on a serial port.
+Intended to be used with a loopback serial port driver such as https://www.eltima.com/virtual-com-port/
+"""
+
+
 from tmparser import *
 from time import sleep
 import serial

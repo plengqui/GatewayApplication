@@ -1,3 +1,10 @@
+"""Defines a parser for Tinymesh radio packets using Construct(http://construct.readthedocs.io/en/latest/) available on pypi(https://pypi.python.org/pypi/construct/).
+The Tinymesh packet format is specified in the document	RCXXXX(HP)-TM Data Sheet 1.48
+available from https://radiocrafts.com/resources/product-documentation/
+"""
+
+
+
 from construct import *
 from datetime  import datetime
 

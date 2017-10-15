@@ -1,3 +1,11 @@
+"""
+Runs a GUI monitoring all radios in a TinymeshSportident network, and logs all received punches.
+The event loop regularly (every 100 ms) polls the TinymeshController and updates the display with
+health data of all radios, and any Sportident punches received.
+Usage::
+    >>> python tmsi_gui
+"""
+
 from time import sleep
 from tkinter import *
 from tkinter.ttk import *
@@ -10,8 +18,8 @@ import logging
 #logging.basicConfig(filename='myapp.log', level=logging.INFO)
 logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s')
 logging.info('Started')
-logging.warning('%s before you %s', 'Look', 'leap!')
-logging.error('I am an error')
+logging.warning('%s warning %s', 'Test', 'message')
+logging.error('Test error message')
 
 
 root = Tk()
