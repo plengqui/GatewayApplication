@@ -15,7 +15,7 @@ class TestSiParser(unittest.TestCase):
         # Cn = 44
         # SiNr = 343866
         # Td = 37
-        # ThTl = 2016-11-01 19:19:19  (current date)
+        # ThTl = A timestamp with current date, 7 hours after noon or midnight (whichever is closer), plus 19 minutes and 19 seconds (for example 2016-11-01 19:19:19 if current date and time is 2016-11-01 22:34:16)
         # Tsubsec = 13
         # Mem = 448
         # Crc1 = 251
@@ -24,8 +24,8 @@ class TestSiParser(unittest.TestCase):
         self.assertEqual(d.Len,13)
         self.assertEqual(d.Cn, 44, "Wrong control number")
         self.assertEqual(d.SiNr, 343866)
-        self.assertEqual((d.ThTl - datetime.now()).days, 0)
-        self.assertEqual(d.ThTl.hour,19)
+        self.assertEqual(d.ThTl.date(),datetime.now().date())
+        self.assertEqual(d.ThTl.hour%12,19%12) #Modulo 12, since sportident punch clock is within 12 hours
         self.assertEqual(d.ThTl.minute,19)
         self.assertEqual(d.ThTl.second,19)
         self.assertEqual(d.Mem, 448)
