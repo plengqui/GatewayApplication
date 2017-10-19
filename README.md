@@ -2,8 +2,22 @@
 Parser and management application for a Tinymesh radio network.
 Listens to a serial COM port on the local PC where you have connected a Tinymesh gateway in packet mode.
 
+## Environment and prerequisites before running
+This is a python 3 application. It is tested on a Windows PC, but should be able to run on any python platform with a serial port and a GUI.
+The app uses the tkinter framework do drive the GUI. If your platform has a GUI, your python 3 installation should already have tkinter included.
+Install needed packages:
+>pip install construct
+>pip install dirq
+>pip install pyserial
+
+Verify that everything is set up correctly by running the unit test suite included:
+>python test.py
+
 ## Usage
+Start the comwrapper part that grabs incoming Tinymesh packets from the gateway:
     C:\Temp> python comwrapper port=COM1 baudrate=9600
+
+In a separate process, start the GUI part of the application:
     C:\Temp> python tmsi_gui
 
 ## Sourcedoce and files documentation
