@@ -6,19 +6,24 @@ Listens to a serial COM port on the local PC where you have connected a Tinymesh
 This is a python 3 application. It is tested on a Windows PC, but should be able to run on any python platform with a serial port and a GUI.
 The app uses the tkinter framework do drive the GUI. If your platform has a GUI, your python 3 installation should already have tkinter included.
 Install needed packages:
+```
 >pip install construct
 >pip install dirq
 >pip install pyserial
+````
 
 Verify that everything is set up correctly by running the unit test suite included:
+```
 >python test.py
-
-## Usage
+```
+## Usage with attached Tinymesh devkit gateway module
 Start the comwrapper part that grabs incoming Tinymesh packets from the gateway:
     C:\Temp> python comwrapper port=COM1 baudrate=9600
 
 In a separate process, start the GUI part of the application:
     C:\Temp> python tmsi_gui
+    
+If you don't have a Tinymesh devkit module, you can simulate its output by running ```python test_tm_live_data.py``` which will feed actual captured live data from the file live_test_data.txt to the serial port COM2 in binary format. Use a virtual COM port program like Eltima Virtual Serial Port Driver and create a virtual com port pair between COM1 and COM2 (this will feed any output to COM2 right back to COM1, where comwrapper should be listening.
 
 ## Sourcedoce and files documentation
 The python code is documented using docstrings.
