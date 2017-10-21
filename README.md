@@ -1,4 +1,4 @@
-# tmsi
+# tmsi: A central gateway application for a SportidentTinymesh network
 Parser and management application for a Tinymesh radio network.
 Listens to a serial COM port on the local PC where you have connected a Tinymesh gateway in packet mode.
 
@@ -18,13 +18,15 @@ Verify that everything is set up correctly by running the unit test suite includ
 ```
 ## Usage with attached Tinymesh devkit gateway module
 Start the comwrapper part that grabs incoming Tinymesh packets from the gateway:
-    C:\Temp> python comwrapper port=COM1 baudrate=9600
+```
+C:\Temp> python comwrapper port=COM1 baudrate=9600
+```
 
 In a separate process, start the GUI part of the application:
-    C:\Temp> python tmsi_gui
+```
+C:\Temp> python tmsi_gui
+```
     
-If you don't have a Tinymesh devkit module, you can simulate its output by running ```python test_tm_live_data.py``` which will feed actual captured live data from the file live_test_data.txt to the serial port COM2 in binary format. Use a virtual COM port program like Eltima Virtual Serial Port Driver and create a virtual com port pair between COM1 and COM2 (this will feed any output to COM2 right back to COM1, where comwrapper should be listening.
-
 ## Sourcedoce and files documentation
 The python code is documented using docstrings.
 
@@ -37,11 +39,21 @@ A python script that runs the GUI part of the application. Invokes TinymeshContr
 ### tmcontroller.py
 Defines the class TinymeshController which checks for new Tinymesh packets on the store-and-forward queue, parses them, and updates a record of health and connectivity status for each radio unit. If a received packet contains a Sportident punch, parse it and log the punch. TinymeshController is a singleton that we call often from the event loop in the GUI.
 
+### myqueuemanager.py
+Defines the queues used for secure store-and-forward communication between the comwrapper and the TinymeshController in the tmsi_gui process. It creates a directory C:\Temp\tmsi for the messages. It sets up queues for both directions, but currently we handle incoming packets, i.e. from comwrapper to tmsi_gui.
+
 ### siparser.py
 Defines parsing of a Sportident station punch.
 
 ### tmparser.py
 Defines parsing of all different kinds of Tinymesh radio packets.
+
+### test_tm_live_data.py and live_test_data.txt
+If you don't have a Tinymesh devkit module, you can simulate it. 
+Use a virtual COM port program like Eltima Virtual Serial Port Driver and create a virtual com port pair between COM1 and COM2 (this will feed any output to COM2 right back to COM1, where comwrapper should be listening.
+Then simply run 
+```>python test_tm_live_data.py``` 
+which will feed actual captured live data from the file live_test_data.txt to the serial port COM2 in binary format. 
 
 ## TODO
 Send punches to competition administration system using SIRAP.
