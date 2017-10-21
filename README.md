@@ -16,9 +16,11 @@ Verify that everything is set up correctly by running the unit test suite includ
 ```
 >python test.py
 ```
-## Usage with attached Tinymesh devkit gateway module
-This application is intended to run with a Tinymesh module configured as the Gateway of the Tinymesh network connected to a serial port of the PC. For convenience, we have used the Tinymesh Development Kit ([manual](https://radiocrafts.com/uploads/rcxxxxdk-usb_user_manual_1_12.pdf) and [quickstart guide](https://radiocrafts.com/uploads/rcxxxxdk-usb_quick_start_1_1.pdf)) which you connect via USB.
+## The Tinymesh gateway module
+This application is intended to run with a Tinymesh module configured as the gateway of the Tinymesh network connected to a serial port of the PC. If you don't have one, you can simulate it with test_tm_live_data.py, see below.
+For convenience, we have used the Tinymesh Development Kit ([manual](https://radiocrafts.com/uploads/rcxxxxdk-usb_user_manual_1_12.pdf) and [quickstart guide](https://radiocrafts.com/uploads/rcxxxxdk-usb_quick_start_1_1.pdf)) which you connect via USB.
 
+## Usage 
 Start the comwrapper part that grabs incoming Tinymesh packets from the gateway:
 ```
 C:\Temp> python comwrapper port=COM1 baudrate=9600
@@ -33,7 +35,7 @@ C:\Temp> python tmsi_gui
 The python code is documented using docstrings.
 
 ### comwrapper.py
-A python script that should _allways_ be running when the Tinymesh network is active. It listens to incoming packets on the serial port (where your Tinymesh Gateway should be connected) and writes the packets to a store-and-forward queue, which is later read by the TinymeshController.
+A python script that should _allways_ be running when the Tinymesh network is active. It listens to incoming packets on the serial port (where your Tinymesh Gateway should be connected) and writes the packets to a store-and-forward queue on disk, which is later read by the TinymeshController. The reason for running this in a separate process is to ensure no packets from the Tinymesh gateway are lost due to timing issues in the gui part. The Tinymesh gateway does not wait for acknowledgement of packets it sends to the PC, so we really need to make sure every packet is grabbed and stored in real time. 
 
 ### tmsi_gui.py
 A python script that runs the GUI part of the application. Invokes TinymeshController regularly and displays the health of radios, and shows any received Sportident punches.
@@ -59,4 +61,4 @@ which will feed actual captured live data from the file live_test_data.txt to th
 
 ## TODO
 Send punches to competition administration system using SIRAP.
-Log sequence number of punches from each attached Sportident station (remember there can be more than one Sportident station per Tinymesh radio unit). Raise alarm when any gap in the sequence is detected. Number of missing punches, control number, and time interval.
+Log sequence number of punches from each attached Sportident station (remember there can be more than one Sportident station per Tinymesh radio unit) and raise alarm when any gap in the sequence is detected. Number of missing punches, control number, and time interval.
