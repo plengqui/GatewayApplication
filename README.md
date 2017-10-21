@@ -1,6 +1,7 @@
 # tmsi: A central gateway application for a SportidentTinymesh network
-Parser and management application for a Tinymesh radio network.
-Listens to a serial COM port on the local PC where you have connected a Tinymesh gateway in packet mode.
+Management application for a Tinymesh radio network.
+Listens to a serial COM port on the local PC where you have connected a Tinymesh gateway in packet mode. Parses incoming packets and shows both network management data and received Sportident punches in a GUI.
+
 
 ## Environment and prerequisites before running
 This is a python 3 application. It is tested on a Windows PC, but should be able to run on any python platform with a serial port and a GUI.
