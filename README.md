@@ -17,6 +17,8 @@ Verify that everything is set up correctly by running the unit test suite includ
 >python test.py
 ```
 ## Usage with attached Tinymesh devkit gateway module
+This application is intended to run with a Tinymesh module configured as the Gateway of the Tinymesh network connected to a serial port of the PC. For convenience, we have used the Tinymesh Development Kit ([manual](https://radiocrafts.com/uploads/rcxxxxdk-usb_user_manual_1_12.pdf) and [quickstart guide](https://radiocrafts.com/uploads/rcxxxxdk-usb_quick_start_1_1.pdf)) which you connect via USB.
+
 Start the comwrapper part that grabs incoming Tinymesh packets from the gateway:
 ```
 C:\Temp> python comwrapper port=COM1 baudrate=9600
