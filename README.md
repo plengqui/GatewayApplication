@@ -2,12 +2,12 @@
 Management application for a Tinymesh radio network.
 Listens to a serial COM port on the local PC where you have connected a Tinymesh gateway in packet mode. Parses incoming packets and shows both network management data and received Sportident punches in a GUI:
 
-![GUII](2017-10-21.png)
+![GUI](2017-10-21.png)
 
 ## Environment and prerequisites before running
 This is a python 3 application. It is tested on a Windows PC, but should be able to run on any python platform with a serial port and a GUI.
 The app uses the tkinter framework do drive the GUI. If your platform has a GUI, your python 3 installation should already have tkinter included.
-Install needed packages:
+Install other needed packages:
 ```
 >pip install construct
 >pip install dirq
