@@ -30,7 +30,7 @@ C:\Temp> python comwrapper port=COM1 baudrate=9600
 
 In a separate process, start the GUI part of the application:
 ```
-C:\Temp> python tmsi_gui
+C:\Temp> python gui
 ```
     
 ## Sourcedoce and files documentation
@@ -39,14 +39,14 @@ The python code is documented using docstrings.
 ### comwrapper.py
 A python script that should _allways_ be running when the Tinymesh network is active. It listens to incoming packets on the serial port (where your Tinymesh Gateway should be connected) and writes the packets to a store-and-forward queue on disk, which is later read by the TinymeshController. The reason for running this in a separate process is to ensure no packets from the Tinymesh gateway are lost due to timing issues in the gui part. The Tinymesh gateway does not wait for acknowledgement of packets it sends to the PC, so we really need to make sure every packet is grabbed and stored in real time. 
 
-### tmsi_gui.py
+### gui.py
 A python script that runs the GUI part of the application. Invokes TinymeshController regularly and displays the health of radios, and shows any received Sportident punches.
 
 ### tmcontroller.py
 Defines the class TinymeshController which checks for new Tinymesh packets on the store-and-forward queue, parses them, and updates a record of health and connectivity status for each radio unit. If a received packet contains a Sportident punch, parse it and log the punch. TinymeshController is a singleton that we call often from the event loop in the GUI.
 
 ### myqueuemanager.py
-Defines the queues used for secure store-and-forward communication between the comwrapper and the TinymeshController in the tmsi_gui process. It creates a directory C:\Temp\tmsi for the messages. It sets up queues for both directions, but currently we handle incoming packets, i.e. from comwrapper to tmsi_gui.
+Defines the queues used for secure store-and-forward communication between the comwrapper and the TinymeshController in the gui process. It creates a directory C:\Temp\tmsi for the messages. It sets up queues for both directions, but currently we handle incoming packets, i.e. from comwrapper to gui.
 
 ### siparser.py
 Defines parsing of a Sportident station punch.
