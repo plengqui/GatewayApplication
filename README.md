@@ -1,4 +1,4 @@
-# A central gateway application for a SportidentTinymesh network
+# Central gateway application for a SportidentTinymesh network
 Management application for a Tinymesh radio network.
 Listens to a serial COM port on the local PC where you have connected a Tinymesh module working as gateway of the Tinymesh network. By default, a Tinymesh network forwards all data packets sent from any node to the gateway. The application parses incoming packets and shows both network management health status and received Sportident punches in a GUI:
 
