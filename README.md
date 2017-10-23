@@ -1,6 +1,6 @@
-# tmsi: A central gateway application for a SportidentTinymesh network
+# A central gateway application for a SportidentTinymesh network
 Management application for a Tinymesh radio network.
-Listens to a serial COM port on the local PC where you have connected a Tinymesh gateway in packet mode. Parses incoming packets and shows both network management data and received Sportident punches in a GUI:
+Listens to a serial COM port on the local PC where you have connected a Tinymesh module configured as network gateway in packet mode. Parses incoming packets and shows both network management data and received Sportident punches in a GUI:
 
 ![GUI](2017-10-21.png)
 
@@ -19,8 +19,9 @@ Verify that everything is set up correctly by running the unit test suite includ
 >python test.py
 ```
 ## The Tinymesh gateway module
-This application is intended to run with a Tinymesh module configured as the gateway of the Tinymesh network connected to a serial port of the PC. If you don't have one, you can simulate it with test_tm_live_data.py, see below.
+This application is intended to run with a Tinymesh module connected to a serial port of the PC. If you don't have one, you can simulate it with test_tm_live_data.py, see below.
 For convenience, we have used the Tinymesh Development Kit ([manual](https://radiocrafts.com/uploads/rcxxxxdk-usb_user_manual_1_12.pdf) and [quickstart guide](https://radiocrafts.com/uploads/rcxxxxdk-usb_quick_start_1_1.pdf)) which you connect via USB.
+The Tinymesh module should be a configured as gateway with packet mode enabled. Use the [CCT (Configuration and Communication Tool)](https://radiocrafts.com/resources/software-tools/) from Radiocrafts to configure the gateway. 
 
 ## Usage 
 Start the comwrapper part that grabs incoming Tinymesh packets from the gateway:
