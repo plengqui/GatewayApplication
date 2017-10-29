@@ -36,10 +36,13 @@ class TinymeshController(object):
         Arguments:
             data -- list of integers representing bytes of the packet
         """
+        if(len(data)!=20):
+            logging.warning("Unexpected length of serial packet %s", len(data))
+        # TODO: check if there are more than one punches in the serial data. Parse all of them.
+
         buf=bytes(data)
         try:
             punch = SiPacket.parse(buf)
-            #TODO: check if there are more than one punches in the serial data. Parse all of them.
         except (construct.core.ConstructError, construct.core.FieldError, construct.core.RangeError) as e:
             logging.exception("Could not parse serial packet as Sportident punch: %s", data)
         except:
