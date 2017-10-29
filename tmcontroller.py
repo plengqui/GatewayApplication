@@ -1,3 +1,4 @@
+
 from datetime  import datetime, timedelta
 from tmparser import *
 from siparser import *
@@ -37,14 +38,16 @@ class TinymeshController(object):
         """
         buf=bytes(data)
         try:
-            punch = siparser.SiPacket.parse(buf)
+            punch = SiPacket.parse(buf)
+            #TODO: check if there are more than one punches in the serial data. Parse all of them.
+        except (construct.core.ConstructError, construct.core.FieldError, construct.core.RangeError) as e:
+            logging.exception("Could not parse serial packet as Sportident punch: %s", data)
         except:
-            # except (construct.core.ConstructError, construct.core.FieldError, construct.core.RangeError) as e:
-            logging.error("Could not parse serial packet as Sportident punch: %s", data)
+            logging.exception("Exception parsing serial packet as Sportident punch: %s", data)
         else:
             logging.debug("Serial data packet received: %s",punch)
             #TODO send with SIRAP to OLA
-            self.serialData.append("Control=" + punch.Cn + " Card=" + punch.SiNr + " Time=" + ThTl.strftime("%H:%M:%S"))
+            self.serialData.append("Control=" + str(punch.Cn) + " Card=" + str(punch.SiNr) + " Time=" + punch.ThTl.strftime("%H:%M:%S"))
 
     def get_serial_data(self):
         """Check if any new Sportident punch has been received. If so, returns it as a human readable message.
