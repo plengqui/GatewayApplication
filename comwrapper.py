@@ -3,16 +3,13 @@ and put any received data packets on a store-and-forward queue SUBJECT_NETWORKPA
 This is to make sure no incoming packets are lost. Assumes that packet length is in the first byte of the packet.
 
 Usage::
-    >>> python comwrapper port=COM1 baudrate=9600
+    >>> python comwrapper port=COM7 baudrate=19200
 Assumes no parity and one stop bit.
 """
 
 
 
-import serial
-#from datetime  import datetime
-#from tmparser import *
-#from comwrapper import *
+import serial # Documentation: http://pyserial.readthedocs.io/en/latest/
 from time import sleep
 import serial.tools.list_ports
 import argparse
