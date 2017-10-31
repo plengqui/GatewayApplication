@@ -50,7 +50,7 @@ class TinymeshController(object):
         else:
             logging.debug("Serial data packet received: %s",punch)
             #TODO send with SIRAP to OLA
-            self.serialData.append("Control=" + str(punch.Cn) + " Card=" + str(punch.SiNr) + " Time=" + punch.ThTl.strftime("%H:%M:%S"))
+            self.serialData.append("Control=" + str(punch.Cn) + " Card=" + str(punch.SiNr) + " Time=" + punch.ThTl.strftime("%H:%M:%S") + " Memorypos=" + str(punch.Mem))
 
     def get_serial_data(self):
         """Check if any new Sportident punch has been received. If so, returns it as a human readable message.
