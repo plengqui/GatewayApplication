@@ -6,6 +6,8 @@ from time import sleep
 from myqueuemanager import MyQueue
 from collections import deque
 from construct.core import ConstructError
+from construct.core import FieldError
+from construct.core import RangeError
 import logging
 
 class TinymeshController(object):
@@ -43,7 +45,7 @@ class TinymeshController(object):
         buf=bytes(data)
         try:
             punch = SiPacket.parse(buf)
-        except (construct.core.ConstructError, construct.core.FieldError, construct.core.RangeError) as e:
+        except (ConstructError, FieldError, RangeError) as e:
             logging.exception("Could not parse serial packet as Sportident punch: %s", data)
         except:
             logging.exception("Exception parsing serial packet as Sportident punch: %s", data)
