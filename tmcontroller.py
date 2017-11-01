@@ -51,8 +51,35 @@ class TinymeshController(object):
             logging.exception("Exception parsing serial packet as Sportident punch: %s", data)
         else:
             logging.debug("Serial data packet received: %s",punch)
-            #TODO send with SIRAP to OLA
             self.serialData.append("Control=" + str(punch.Cn) + " Card=" + str(punch.SiNr) + " Time=" + punch.ThTl.strftime("%H:%M:%S") + " Memorypos=" + str(punch.Mem))
+            # TODO send with SIRAP to OLA
+        # private static void sendSirapPunch(int chipNo, DateTime punchTime, DateTime zeroTime, int control, TcpClient client)
+        # {
+        #     DateTime ZeroTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
+        #     ZeroTime.AddHours(zeroTime.Hour);
+        #     ZeroTime.AddMinutes(zeroTime.Minute);
+        #     NetworkStream ns = client.GetStream();
+        #     byte[] msg = new byte[15];
+        #     msg[0] = (byte)0x00;
+        #     msg[1] = (byte)control;  // == CSI
+        #     msg[2] = 0; // csi hi
+        #     msg[3] = (byte)(chipNo & 0xff);
+        #     msg[4] = (byte)((chipNo >> 8) & 0xff);
+        #     msg[5] = (byte)((chipNo >> 16) & 0xff);
+        #     msg[6] = (byte)((chipNo >> 24) & 0xff);
+        #     msg[7] = 0;
+        #     msg[8] = 0;
+        #     msg[9] = 0;
+        #     msg[10] = 0;
+        #     int time = (int)(punchTime.TimeOfDay.TotalMilliseconds / 100 - ZeroTime.TimeOfDay.TotalMilliseconds / 100);
+        #     if (time < 0)
+        #         time += 10 * 60 * 60 * 24;
+        #     msg[11] = (byte)(time & 0xff);
+        #     msg[12] = (byte)((time >> 8) & 0xff);
+        #     msg[13] = (byte)((time >> 16) & 0xff);
+        #     msg[14] = (byte)((time >> 24) & 0xff);
+        #     ns.Write(msg, 0, 15);
+        # }
 
     def get_serial_data(self):
         """Check if any new Sportident punch has been received. If so, returns it as a human readable message.
