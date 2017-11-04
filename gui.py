@@ -15,7 +15,7 @@ from datetime import datetime
 from tmcontroller import TinymeshController
 
 import logging
-sirap_host_ip = '192.168.1.49' #TODO set this via config file or command line parameters instead
+sirap_host_ip = 'localhost' #TODO set this via config file or command line parameters instead
 
 #logging.basicConfig(filename='myapp.log', level=logging.INFO)
 logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s')
