@@ -2,6 +2,7 @@
 Runs a GUI monitoring all radios in a TinymeshSportident network, and logs all received punches.
 The event loop regularly (every 100 ms) polls the TinymeshController and updates the display with
 health data of all radios, and any Sportident punches received.
+Edit sirap_host_ip variable in this script to point to your OLA client listening for SIRAP packets.
 Usage::
     >>> python tmsi_gui
 """
@@ -14,6 +15,7 @@ from datetime import datetime
 from tmcontroller import TinymeshController
 
 import logging
+sirap_host_ip = '192.168.1.49' #TODO set this via config file or command line parameters instead
 
 #logging.basicConfig(filename='myapp.log', level=logging.INFO)
 logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s')
@@ -46,7 +48,7 @@ tree.heading("latency", text="LatencyCounter")
 #     id=tree.insert("", 0, text="Radio "+str(i), values=("50%", "7"))
 #     radioRows.append(id)
 
-tm=TinymeshController()
+tm=TinymeshController(sirap_host_ip)
 def update():
     # read new radio status from tmcontroller
     radioStates=tm.process_new_data()

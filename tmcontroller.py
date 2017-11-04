@@ -10,25 +10,69 @@ from construct.core import FieldError
 from construct.core import RangeError
 import logging
 
+from datetime import *
+from struct import *
+import socket
+
+
 class TinymeshController(object):
     """Check for new Tinymesh packets on the incoming queue SUBJECT_NETWORKPACKETS_IN, and parse them.
     Keep connectivity and health status of each radio using the metadata in each packet.
     The action is driven by external call to process_new_data() at regular intervals (typically seconds).
-    TODO: send any received Sportident punches to competition administration system using SIRAP.
+    Sends any received Sportident punches to competition administration system using SIRAP.
+    SIRAP hostname/ip is given as argument to the constructor.
     """
 
     __singleton_instance = None
-    def __new__(cls):
+    def __new__(cls,hostip):
         if TinymeshController.__singleton_instance is None:
             TinymeshController.__singleton_instance = object.__new__(cls)
-        #TinymeshController.__singleton_instance.val = val
+            TinymeshController.__singleton_instance.sirap_hostname = hostip
         return TinymeshController.__singleton_instance
 
-    def __init__(self):
+    def __init__(self,hostip):
+        self.sirap_hostname = hostip
         self.dirq = MyQueue(subject=MyQueue.SUBJECT_NETWORKPACKETS_IN)
         self.radioStatus = {}  # A dictionary of status data for each radio.
         self.serialData = deque([])  # When a packet with serial data payload is received, this is the queue it is put on.
         self.last_purge = datetime.now() # Used to clean up the queue at regular intervals.
+
+    def sirap_buildmsg(self,cn,sinr, punchtime):
+
+        #punchTime = datetime(2016, 8, 20, hour=8, minute=0, second=0)
+        logging.debug("Sending SIRAP for %s",punchtime)
+        zero12h = datetime(punchtime.year, punchtime.month, punchtime.day, 12 if (punchtime.hour > 11) else 0, 0, 0)
+        # the nearest noon or midnight before the punchTime
+        logging.debug("Nearset noon/midnight before is %s", zero12h)
+
+
+        # t = number of tenths of seconds between zero12h and punchTime
+        # where zero12h is the nearest noon or midnight before the punchTime
+
+        t = (punchtime - zero12h).seconds * 10
+
+        # bytes of a SIRAP packet:
+        # 0=0
+        # 1=control
+        # 2=0
+        # 3 right,4,5,6 left = chipNo
+        # 7,8,9,10=0
+        # right 11,12,13,14 left = t
+        msg = pack('<BHLLL', 0, cn, sinr, 0, t)
+        return msg
+
+    # write msg to the tcp connection
+    # TODO: put actual SIRAP sending in a separate process, fed by a dirq queue (so we dont miss any punches if tcp fails)
+    def sirap_send(self,msg):
+        host = self.sirap_hostname
+        port = 10001
+        mySocket = socket.socket()
+        mySocket.connect((host, port))
+        sent = mySocket.send(msg)
+        logging.info("Sent %i bytes",sent)
+        # response = mySocket.recv(1024).decode()
+        # print('Received from server: ' + response)
+        mySocket.close()
 
     def process_serial_data(self,data):
         """Attempt to parse the data as a sportident punch. If successful, send with SIRAP and print to gui.
@@ -39,47 +83,22 @@ class TinymeshController(object):
             data -- list of integers representing bytes of the packet
         """
         if(len(data)!=20):
-            logging.warning("Unexpected length of serial packet %s", len(data))
+            logging.warning("Unexpected length of serial packet %s: %s", len(data), data)
         # TODO: check if there are more than one punches in the serial data. Parse all of them.
 
         buf=bytes(data)
         try:
             punch = SiPacket.parse(buf)
         except (ConstructError, FieldError, RangeError) as e:
-            logging.exception("Could not parse serial packet as Sportident punch: %s", data)
+            logging.warning("Could not parse serial packet as Sportident punch: %s", data)
         except:
-            logging.exception("Exception parsing serial packet as Sportident punch: %s", data)
+            logging.warning("Unknown exception parsing serial packet as Sportident punch: %s", data)
         else:
             logging.debug("Serial data packet received: %s",punch)
             self.serialData.append("Control=" + str(punch.Cn) + " Card=" + str(punch.SiNr) + " Time=" + punch.ThTl.strftime("%H:%M:%S") + " Memorypos=" + str(punch.Mem))
-            # TODO send with SIRAP to OLA
-        # private static void sendSirapPunch(int chipNo, DateTime punchTime, DateTime zeroTime, int control, TcpClient client)
-        # {
-        #     DateTime ZeroTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
-        #     ZeroTime.AddHours(zeroTime.Hour);
-        #     ZeroTime.AddMinutes(zeroTime.Minute);
-        #     NetworkStream ns = client.GetStream();
-        #     byte[] msg = new byte[15];
-        #     msg[0] = (byte)0x00;
-        #     msg[1] = (byte)control;  // == CSI
-        #     msg[2] = 0; // csi hi
-        #     msg[3] = (byte)(chipNo & 0xff);
-        #     msg[4] = (byte)((chipNo >> 8) & 0xff);
-        #     msg[5] = (byte)((chipNo >> 16) & 0xff);
-        #     msg[6] = (byte)((chipNo >> 24) & 0xff);
-        #     msg[7] = 0;
-        #     msg[8] = 0;
-        #     msg[9] = 0;
-        #     msg[10] = 0;
-        #     int time = (int)(punchTime.TimeOfDay.TotalMilliseconds / 100 - ZeroTime.TimeOfDay.TotalMilliseconds / 100);
-        #     if (time < 0)
-        #         time += 10 * 60 * 60 * 24;
-        #     msg[11] = (byte)(time & 0xff);
-        #     msg[12] = (byte)((time >> 8) & 0xff);
-        #     msg[13] = (byte)((time >> 16) & 0xff);
-        #     msg[14] = (byte)((time >> 24) & 0xff);
-        #     ns.Write(msg, 0, 15);
-        # }
+            #send with SIRAP to OLA:
+            self.sirap_send(self.sirap_buildmsg(punch.Cn, punch.SiNr, punch.ThTl))
+
 
     def get_serial_data(self):
         """Check if any new Sportident punch has been received. If so, returns it as a human readable message.
@@ -109,7 +128,7 @@ class TinymeshController(object):
                 d=ReceivedPacket.parse(buf)
             except:
             #except (construct.core.ConstructError, construct.core.FieldError, construct.core.RangeError) as e:
-                logging.error("Could not parse TM packet: %s",buf)
+                logging.warning("Could not parse TM packet: %s",buf)
             else:
                 logging.debug("Received TM packet: %s",d)
                 if d.OriginId in self.radioStatus:
