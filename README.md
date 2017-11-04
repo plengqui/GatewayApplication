@@ -64,4 +64,7 @@ Then simply run
 which will feed actual captured live data from the file live_test_data.txt to the serial port COM2 in binary format. 
 
 ## TODO
-* Log sequence number of punches from each attached Sportident station (remember there can be more than one Sportident station per Tinymesh radio unit) and raise alarm when any gap in the sequence is detected. Show number of missing punches, control number, and time interval. This will probably require a change in the protocol so that station id is added to the punch data serial packet. Maybe there is an unused byte somewhere?
+* Log sequence number of punches from each attached Sportident station (remember there can be more than one Sportident station per Tinymesh radio unit) and raise alarm when any gap in the sequence is detected. Show number of missing punches, control number, and time interval. This will probably require a change in the protocol so that station id is added to the punch data serial packet. Possibly use the Tsubsec field for this (or the lowest three bytes, which would mean 1/32 second resolution instead of 1/256 second resolution).
+* Publish status & punches to Internet, to be able to check things are working end-to-end while in the woods. Slack API or create HTML file.
+* Use store-and-forward queue dirq for SIRAP punches between tmcontroller.py and OLA. 
+* Use config file instead of command-line parameters or hard-coded in py file.
