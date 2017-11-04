@@ -58,7 +58,7 @@ class TinymeshController(object):
         # 3 right,4,5,6 left = chipNo
         # 7,8,9,10=0
         # right 11,12,13,14 left = t
-        msg = pack('<BHLLL', 0, cn, sinr, 0, t)
+        msg = pack('<BBBLLL', 0, cn,0, sinr, 0, t)
         return msg
 
     # write msg to the tcp connection
@@ -97,7 +97,10 @@ class TinymeshController(object):
             logging.debug("Serial data packet received: %s",punch)
             self.serialData.append("Control=" + str(punch.Cn) + " Card=" + str(punch.SiNr) + " Time=" + punch.ThTl.strftime("%H:%M:%S") + " Memorypos=" + str(punch.Mem))
             #send with SIRAP to OLA:
-            self.sirap_send(self.sirap_buildmsg(punch.Cn, punch.SiNr, punch.ThTl))
+            try:
+                self.sirap_send(self.sirap_buildmsg(punch.Cn, punch.SiNr, punch.ThTl))
+            except (OSError) as e:
+                logging.error("Could not send SIRAP message to %s", self.sirap_hostname)
 
 
     def get_serial_data(self):
