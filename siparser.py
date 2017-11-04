@@ -10,6 +10,7 @@ from datetime  import datetime, timedelta
 class SportidentTimeAdapter(Adapter):
      def _decode(self, obj, context):
          REFERENCE_TIME = None
+         #TODO: Known bug, time shows as 12h later when real clock is in the evening but the punch time is in the morning.
          #def _decode_time(raw_time, REFERENCE_TIME=None):
          """Decodes a raw time value read from an si card into a datetime object.
          The returned time is the nearest time matching the data before REFERENCE_TIME.
