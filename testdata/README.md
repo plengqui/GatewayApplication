@@ -13,7 +13,7 @@ Test steps to execute:
 7. Now unpack Tanja_port_in.zip in a similar way as step 4 above. See 100 punches at Radio 2 flow in.
 
 <img src="./Tanja_OLA_radio.png" width="400">
-
+<img src="./Tanja_OLA_radio2.png" width="400">
 
 ## OLA db restore details
 Database DSN:
