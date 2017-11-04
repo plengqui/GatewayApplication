@@ -9,9 +9,9 @@ Test steps to execute:
 3. Start the GatewayApplication gui part: > python gui.py
 4. Unpack the Tanja_port_in.zip file and take all contents of the port_in_test directory and copy it to C:\temp\tmsi\port_in\
 5. Now all 100 radio punches should flow into OLA all at once. 
-6. Compare your output with the screenshot Tanja_OLA_radio.PNG:
+6. Compare your output with the screenshot Tanja_OLA_radio.png:
 
-<img src="./Tanja_OLA_radio.PNG" width="400">
+<img src="./Tanja_OLA_radio.png" width="400">
 
 
 ## OLA db restore details
