@@ -12,14 +12,16 @@ class MyQueue(QueueSimple):
         if not os.path.exists(directory):
             os.makedirs(directory)
     SUBJECT_NETWORKPACKETS_IN = "Tinymesh network packets incoming from serial port"
+    SUBJECT_NETWORKPACKETS_IN_BKP = "Backup of Tinymesh network packets incoming from serial port"
     SUBJECT_NETWORKPACKETS_OUT = "Tinymesh network packets going out to serial port"
 
     def __init__(self, subject):
         if subject == self.SUBJECT_NETWORKPACKETS_IN:
             self.assert_directory_exists(MyQueue.qdirFromSerialPort)
-            self.assert_directory_exists(MyQueue.qdirFromSerialPortBkp)
-            #TODO: add writing to qdirFromSerialPortBkp as well, by overriding add()
             super(MyQueue, self).__init__(MyQueue.qdirFromSerialPort)
+        elif subject == self.SUBJECT_NETWORKPACKETS_IN_BKP:
+            self.assert_directory_exists(MyQueue.qdirFromSerialPortBkp)
+            super(MyQueue, self).__init__(MyQueue.qdirFromSerialPortBkp)
         elif subject == self.SUBJECT_NETWORKPACKETS_OUT:
             self.assert_directory_exists(MyQueue.qdirToSerialPort)
             super(MyQueue, self).__init__(MyQueue.qdirToSerialPort)
