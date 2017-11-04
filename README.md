@@ -44,7 +44,8 @@ A python script that should _allways_ be running when the Tinymesh network is ac
 A python script that runs the GUI part of the application. Invokes TinymeshController regularly and displays the health of radios, and shows any received Sportident punches.
 
 ### tmcontroller.py
-Defines the class TinymeshController which checks for new Tinymesh packets on the store-and-forward queue, parses them, and updates a record of health and connectivity status for each radio unit. If a received packet contains a Sportident punch, parse it and log the punch. TinymeshController is a singleton that we call often from the event loop in the GUI.
+Defines the class TinymeshController which checks for new Tinymesh packets on the store-and-forward queue, parses them, and updates a record of health and connectivity status for each radio unit. If a received packet contains a Sportident punch, parse it and log the punch. Sends punches to competition administration system using SIRAP.
+TinymeshController is a singleton that we call often from the event loop in the GUI.
 
 ### myqueuemanager.py
 Defines the queues used for secure store-and-forward communication between the comwrapper and the TinymeshController in the gui process. It creates a directory C:\Temp\tmsi for the messages. It sets up queues for both directions, but currently we only handle incoming packets, i.e. from comwrapper to gui.
@@ -63,5 +64,4 @@ Then simply run
 which will feed actual captured live data from the file live_test_data.txt to the serial port COM2 in binary format. 
 
 ## TODO
-* Send punches to competition administration system using SIRAP.
-* Log sequence number of punches from each attached Sportident station (remember there can be more than one Sportident station per Tinymesh radio unit) and raise alarm when any gap in the sequence is detected. Show number of missing punches, control number, and time interval.
+* Log sequence number of punches from each attached Sportident station (remember there can be more than one Sportident station per Tinymesh radio unit) and raise alarm when any gap in the sequence is detected. Show number of missing punches, control number, and time interval. This will probably require a change in the protocol so that station id is added to the punch data serial packet. Maybe there is an unused byte somewhere?
