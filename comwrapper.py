@@ -16,7 +16,7 @@ import argparse
 from myqueuemanager import MyQueue
 import logging
 
-logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s')
+logging.basicConfig(level=logging.WARNING,format='%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s')
 logging.info('Started')
 logging.warning('%s before you %s', 'Look', 'leap!')
 logging.error('I am an error')
@@ -39,10 +39,15 @@ class ComWrapper():
                                           timeout=port_timeout)
         #queue to put received packets to
         self.dirq = MyQueue(subject=MyQueue.SUBJECT_NETWORKPACKETS_IN)
+        #queue to put backup of received packets to
+        self.dirq_bkp = MyQueue(subject=MyQueue.SUBJECT_NETWORKPACKETS_IN_BKP)
+
 
     def exportPacket(self,buf):
         """Put the packet on the queue."""
+        name = self.dirq_bkp.add(buf)
         name = self.dirq.add(buf)
+
 
     def getPacket(self):
         """ Read a new packet on the serial port and return it.
@@ -55,7 +60,7 @@ class ComWrapper():
             #todo verify that len(data) == 1
             length = data[0]
             #todo log warning if length is feasible
-            self.serial_port.timeout=0.01 + length/(self.serial_port.baudrate/10)
+            self.serial_port.timeout=0.1 + length/(self.serial_port.baudrate/10)
             #timeout so the entire packet has time to arrive at the current baudrate, with 10ms margin
             data = bytes([length]) + self.serial_port.read(length-1)
             return data
