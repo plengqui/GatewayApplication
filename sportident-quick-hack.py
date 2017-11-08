@@ -2,7 +2,11 @@ import time
 import serial
 from struct import *
 import math
-# configure the serial connections (the parameters differs on the device you are connecting to)
+
+# This script is just a quick hack I used to learn the binary format Sportident stations auto-send when a punch is made.
+# It uses the "struct" standard python library. Later I chose the more powerful construct library.
+
+# configure the serial connections (the parameters differs on the device you are connecting to):
 ser = serial.Serial(
         port='COM14',
         baudrate=9600,
